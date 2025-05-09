@@ -16,14 +16,8 @@ app.post('/convert', (req, res) => {
   const $ = cheerio.load(html);
   const turndown = new TurndownService();
 
-  // デバッグログを追加
-console.log('Checking presence of #article-title and #article-content...');
-console.log('#article-title length:', $('#article-title').length);
-console.log('#article-content length:', $('#article-content').length);
-
-  
-  const title = $('#article-title').text().trim();
-  const contentHtml = $('#article-content').html() || '';
+  const title = $('h1.faq-article-title').text().trim();
+  const contentHtml = $('div.article-body').html() || '';
   const contentMd = turndown.turndown(contentHtml);
 
   res.json({
