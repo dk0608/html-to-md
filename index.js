@@ -6,8 +6,8 @@ const TurndownService = require('turndown');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// すべてのPOSTリクエストのbodyを「文字列」として扱う
-app.use(bodyParser.text({ type: () => true }));
+// すべてのリクエストを文字列として受け取り、最大5MBまで許容
+app.use(bodyParser.text({ type: () => true, limit: '5mb' }));
 
 app.post('/convert', (req, res) => {
   const html = req.body;
