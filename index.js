@@ -6,20 +6,23 @@ const TurndownService = require('turndown');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// どんなContent-TypeでもHTML文字列として受け取る
-app.use(bodyParser.text({ type: '*/*' }));
+// text/html のみを明示的に許可
+app.use(bodyParser.text({ type: 'text/html' }));
 
 app.post('/convert', (req, res) => {
   const html = req.body;
 
-  // デバッグログ：受信したHTMLの一部を表示
   console.log('=== RECEIVED HTML PREVIEW ===');
-  console.log(typeof html, html.slice(0, 1000));
+  if (typeof html === 'string') {
+    console.log(html.slice(0, 1000));
+  } else {
+    console.warn('req.body is not a string. Type:', typeof html);
+    return res.status(400).json({ error: 'Invalid HTML format received' });
+  }
 
   const $ = cheerio.load(html);
   const turndown = new TurndownService();
 
-  // cheerioセレクタがマッチしているか確認
   console.log('h1.faq-article-title length:', $('h1.faq-article-title').length);
   console.log('div.article-body length:', $('div.article-body').length);
 
