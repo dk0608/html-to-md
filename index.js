@@ -21,10 +21,8 @@ app.post('/convert', (req, res) => {
   }
 
   const $ = cheerio.load(html);
-
-  // ✅ Markdownの改行ルール対応オプションを追加
   const turndown = new TurndownService({
-    br: '  \n'  // ← ここがポイント（スペース2つ＋改行）
+    br: '  \n'  // Markdown改行対応
   });
 
   console.log('h1.faq-article-title length:', $('h1.faq-article-title').length);
@@ -32,7 +30,16 @@ app.post('/convert', (req, res) => {
 
   const title = $('h1.faq-article-title').text().trim();
   const contentHtml = $('div.article-body').html() || '';
-  const contentMd = turndown.turndown(contentHtml);
+  let contentMd = turndown.turndown(contentHtml);
+
+  // Markdown整形処理
+  contentMd = contentMd
+    .replace(/\\n/g, '\n') // \n → 改行
+    .replace(/\\\[/g, '[').replace(/\\\]/g, ']') // バックスラッシュ除去
+    .replace(/(#+ .+)\n(?!\n)/g, '$1\n\n') // 見出し後に空行
+    .replace(/([^\n])\n([^\n])/g, '$1  \n$2') // 通常行を段落風に
+    .replace(/^\* /gm, '- ') // リスト記号を整形
+    .replace(/\n{3,}/g, '\n\n'); // 改行の連続を整理
 
   res.json({
     title,
