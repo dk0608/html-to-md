@@ -6,19 +6,12 @@ const TurndownService = require('turndown');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// HTML（text/html）をプレーンテキストとして受け取る
 app.use(bodyParser.text({ type: 'text/html' }));
 
+// /convert に HTML をPOSTすると、タイトルと本文をMarkdownで返す
 app.post('/convert', (req, res) => {
-  let html = req.body;
-
-  // バックスラッシュ入りのエスケープ文字列ならJSON.parseでアンエスケープ
-  if (typeof html === 'string' && html.includes('\\"')) {
-    try {
-      html = JSON.parse(`"${html}"`);
-    } catch (e) {
-      console.warn("HTML parse failed, using raw body");
-    }
-  }
+  const html = req.body;
 
   const $ = cheerio.load(html);
   const turndown = new TurndownService();
@@ -33,10 +26,12 @@ app.post('/convert', (req, res) => {
   });
 });
 
+// 動作確認用のトップページ
 app.get('/', (req, res) => {
   res.send('Markdown converter API is running.');
 });
 
+// サーバー起動
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
