@@ -6,8 +6,8 @@ const TurndownService = require('turndown');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// text/html のみを明示的に許可
-app.use(bodyParser.text({ type: 'text/html' }));
+// すべてのPOSTリクエストのbodyを「文字列」として扱う
+app.use(bodyParser.text({ type: () => true }));
 
 app.post('/convert', (req, res) => {
   const html = req.body;
