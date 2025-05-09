@@ -21,7 +21,11 @@ app.post('/convert', (req, res) => {
   }
 
   const $ = cheerio.load(html);
-  const turndown = new TurndownService();
+
+  // ✅ Markdownの改行ルール対応オプションを追加
+  const turndown = new TurndownService({
+    br: '  \n'  // ← ここがポイント（スペース2つ＋改行）
+  });
 
   console.log('h1.faq-article-title length:', $('h1.faq-article-title').length);
   console.log('div.article-body length:', $('div.article-body').length);
