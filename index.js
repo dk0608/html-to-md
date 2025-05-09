@@ -6,28 +6,27 @@ const TurndownService = require('turndown');
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(bodyParser.text({ type: 'text/html' }));
+// どんなContent-TypeでもHTML文字列として受け取る
+app.use(bodyParser.text({ type: '*/*' }));
 
 app.post('/convert', (req, res) => {
   const html = req.body;
 
-  // デバッグログ：受信したHTMLの一部
+  // デバッグログ：受信したHTMLの一部を表示
   console.log('=== RECEIVED HTML PREVIEW ===');
-  console.log(html.slice(0, 1000));
+  console.log(typeof html, html.slice(0, 1000));
 
   const $ = cheerio.load(html);
   const turndown = new TurndownService();
 
-  // デバッグログ：セレクタマッチ状況
+  // cheerioセレクタがマッチしているか確認
   console.log('h1.faq-article-title length:', $('h1.faq-article-title').length);
   console.log('div.article-body length:', $('div.article-body').length);
 
-  // タイトルと本文抽出
   const title = $('h1.faq-article-title').text().trim();
   const contentHtml = $('div.article-body').html() || '';
   const contentMd = turndown.turndown(contentHtml);
 
-  // 結果返却
   res.json({
     title,
     content: contentMd,
